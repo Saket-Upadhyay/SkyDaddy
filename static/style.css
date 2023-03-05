@@ -1,0 +1,82 @@
+@import url("https://fonts.googleapis.com/css?family=Spinnaker");
+body {
+  background-image: url("/static/SkyDaddy.png");
+  background-size: cover;
+  object-fit: contain;
+  color: #ecf0f1;
+  font-family: lato,sans-serif;
+  text-align: center;
+  margin: 10% auto;
+  display: table;
+}
+
+form {
+  text-align: left;
+}
+
+#file-upload {
+  position: absolute;
+  left: -9999px;
+}
+
+label[for="file-upload"] {
+  padding: 0.5em;
+  display: inline-block;
+  background: black;
+  cursor: pointer;
+}
+label[for="file-upload"]:hover {
+  background: red;
+}
+
+#file-submit{
+  position: absolute;
+  left: -9999px;
+}
+
+label[for="file-submit"] {
+  padding: 0.5em;
+  display: inline-block;
+  background: black;
+  cursor: pointer;
+}
+label[for="file-submit"]:hover {
+  background: red;
+}
+#file-download{
+  position: absolute;
+  left: -9999px;
+}
+
+label[for="file-download"] {
+  padding: 0.5em;
+  display: inline-block;
+  background: black;
+  cursor: pointer;
+}
+label[for="file-download"]:hover {
+  background: red;
+}
+
+
+
+
+#filename {
+  padding: 0.5em;
+  float: left;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  background: black;
+}
+#downloadcode {
+  padding: 0.5em;
+  float: left;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  color: white;
+  background: black;
+}
+
+
