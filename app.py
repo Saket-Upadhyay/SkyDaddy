@@ -11,11 +11,14 @@ import hashlib
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "./UPLOADS/"
+MAX_CONTENT_LENGTH=100 * 1000 * 1000  # 100 MB file limit size
 ALLOWED_EXT = {'txt', 'pdf', 'png', 'jpg', 'jpeg' 'gif', 'h', 'cpp', 'zip', 'tar', 'xz', '7z', 'iso'}
+
+
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1000 * 1000  # 100 MB file limit size
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 SESSION_KEY_RAND = base64.encodebytes(os.urandom(16))
 app.config.update(SECRET_KEY=SESSION_KEY_RAND,
                   ENV='development')
@@ -80,7 +83,7 @@ def upload_file():
 
             # return redirect(url_for('download_file',name=filename))
 
-    return render_template("uploadtemplate.html")
+    return render_template("uploadtemplate.html",ALLOWEDEXTS=ALLOWED_EXT, CONTENTLENGTH="< "+str(MAX_CONTENT_LENGTH/(1000*1000)))
 
 
 @app.route('/uploads/<name>')
@@ -109,4 +112,4 @@ def download_file(name):
 
 
 if __name__ == '__main__':
-    app.run("0.0.0.0", 8000, debug=False)
+    app.run("0.0.0.0", 8000, debug=True)

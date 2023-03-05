@@ -1,17 +1,25 @@
 @import url("https://fonts.googleapis.com/css?family=Spinnaker");
+
+:root {
+  --accentcolor: #D6ED17FF;
+}
+
 body {
-  background-image: url("/static/SkyDaddy.png");
+  /*background-image: url("/static/SkyDaddy.png");*/
+  background: #606060FF;
   background-size: cover;
   object-fit: contain;
-  color: #ecf0f1;
+  color: whitesmoke;
   font-family: lato,sans-serif;
   text-align: center;
   margin: 10% auto;
   display: table;
 }
 
+
 form {
   text-align: left;
+  color: black;
 }
 
 #file-upload {
@@ -22,7 +30,8 @@ form {
 label[for="file-upload"] {
   padding: 0.5em;
   display: inline-block;
-  background: black;
+
+  background: var(--accentcolor);
   cursor: pointer;
 }
 label[for="file-upload"]:hover {
@@ -37,7 +46,7 @@ label[for="file-upload"]:hover {
 label[for="file-submit"] {
   padding: 0.5em;
   display: inline-block;
-  background: black;
+  background: var(--accentcolor);
   cursor: pointer;
 }
 label[for="file-submit"]:hover {
@@ -46,28 +55,29 @@ label[for="file-submit"]:hover {
 #file-download{
   position: absolute;
   left: -9999px;
+
 }
 
 label[for="file-download"] {
   padding: 0.5em;
   display: inline-block;
-  background: black;
+  background: var(--accentcolor);
   cursor: pointer;
+    color: black;
 }
 label[for="file-download"]:hover {
   background: red;
 }
 
 
-
-
 #filename {
   padding: 0.5em;
   float: left;
-  width: 150px;
+  width: 300px;
   white-space: nowrap;
   overflow: hidden;
-  background: black;
+    color: black;
+  background: #ffffff;
 }
 #downloadcode {
   padding: 0.5em;
@@ -75,8 +85,8 @@ label[for="file-download"]:hover {
   width: 150px;
   white-space: nowrap;
   overflow: hidden;
-  color: white;
-  background: black;
+  color: black;
+  background: white;
 }
 
 

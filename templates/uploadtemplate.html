@@ -8,20 +8,49 @@
 
 </head>
 <body>
+<H1>SkyDaddy - DrDope</H1>
+<h3>File Constraints</h3>
 
-<!-- partial:index.partial.html -->
+<table style="border-collapse:collapse;border-spacing:0" class="tg">
+    <tbody>
+    <tr>
+        <td style="border-color:#000000;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;font-weight:bold;overflow:hidden;padding:10px 5px;text-align:left;vertical-align:top;word-break:normal">
+            File Types
+        </td>
+        <td style="border-color:#000000;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;font-weight:bold;overflow:hidden;padding:10px 5px;text-align:left;vertical-align:top;word-break:normal">
+            {{ ALLOWEDEXTS }}
+        </td>
+    </tr>
+    <tr>
+        <td style="border-color:#000000;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;font-weight:bold;overflow:hidden;padding:10px 5px;text-align:left;vertical-align:top;word-break:normal">
+            File Size (MB)
+        </td>
+        <td style="border-color:#000000;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;font-weight:bold;overflow:hidden;padding:10px 5px;text-align:left;vertical-align:top;word-break:normal">
+            {{ CONTENTLENGTH }}
+        </td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<br>
+<br>
+
 <form method="post" enctype="multipart/form-data" action="">
-  <span id="filename">Select your file</span>
+    <span id="filename">Select your file</span>
     <label for="file-upload">Browse<input type="file" name="file" id="file-upload"></label>
     <label for="file-submit">Upload<input type=submit id="file-submit"></label>
 </form>
 <br>
 <br>
 <br>
-<input id="downloadcode" type="text" name="downloadcode">
-<label for="file-download">Download File<button type="button" id="file-download" onclick="callDownCode()">Download</button></label>
 
-  <script src='../static/jquery.min.js'></script><script  src="../static/script.js"></script>
+<input id="downloadcode" type="text" name="downloadcode">
+<label for="file-download">Download File
+    <button type="button" id="file-download" onclick="callDownCode()">Download</button>
+</label>
+
+<script src='../static/jquery.min.js'></script>
+<script src="../static/script.js"></script>
 
 
 </body>
