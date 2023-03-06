@@ -11,7 +11,7 @@ import hashlib
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "./UPLOADS/"
-MAX_CONTENT_LENGTH=100 * 1000 * 1000  # 100 MB file limit size
+MAX_CONTENT_LENGTH=50 * 1000 * 1000  # 100 MB file limit size
 ALLOWED_EXT = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'h', 'cpp', 'zip', 'tar', 'xz', '7z', 'iso'}
 
 
