@@ -1,6 +1,6 @@
 import pathlib
 import shutil
-
+import socket
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, render_template, session
 import os
 from flask_session import Session
@@ -26,6 +26,7 @@ Session(app)
 BUF_SIZE = 65536
 
 
+# Creating a dictionary to save hash-file relations
 class my_big_dic(dict):
     def __init__(self):
         self = dict()
@@ -83,7 +84,7 @@ def upload_file():
 
             # return redirect(url_for('download_file',name=filename))
 
-    return render_template("uploadtemplate.html",ALLOWEDEXTS=str(ALLOWED_EXT)[1:-1], CONTENTLENGTH="< "+str(MAX_CONTENT_LENGTH/(1000*1000)))
+    return render_template("uploadtemplate.html",ALLOWEDEXTS=str(ALLOWED_EXT)[1:-1], CONTENTLENGTH="< "+str(MAX_CONTENT_LENGTH/(1000*1000)),HOSTER=socket.gethostname(), CLIENT=request.remote_addr)
 
 
 @app.route('/uploads/<name>')
@@ -112,4 +113,4 @@ def download_file(name):
 
 
 if __name__ == '__main__':
-    app.run("0.0.0.0", 8000, debug=True)
+    app.run("0.0.0.0", 8000, debug=False)
