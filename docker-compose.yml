@@ -7,8 +7,8 @@ services:
     ports:
       - "5000"
     volumes:
-      - ./app/UPLOADS:/app/UPLOADS
-      - ./app/PERMA:/app/PERMA
+      - sharedUPLOAD:/app/UPLOADS
+      - sharedPERMA:/app/PERMA
 
   ngnix:
     image: nginx:latest
@@ -19,5 +19,8 @@ services:
     ports:
       - "80:80"
 
-#volumes:
-#  shared_UPLOAD:
+volumes:
+  sharedUPLOAD:
+    external: true
+  sharedPERMA:
+    external: true
