@@ -1,1 +1,1 @@
-# SkyDaddy - Minimal File Sharing Server
+# SkyDaddy - Minimal, Scalable File Sharing Server
