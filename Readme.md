@@ -4,6 +4,8 @@
  
 > Tested on Ubuntu 22.04 LTS and MacOS Ventura 13.2.1
 
+![](https://github.com/Saket-Upadhyay/SkyDaddy/blob/main/SkyDaddy%20Poster.png)
+
 You can deploy this application without scaling using gunicorn on your local machine/server, or you can utilise docker
 to scale the application.
 If you intend to use this with more than 3-4 users, it is recommended that you scale it up.
