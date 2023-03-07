@@ -85,6 +85,7 @@ def gethash(file, mode):
         rwdata = file.encode("utf-8")
         sha1.update(rwdata)
         return sha1.hexdigest()
+    return None
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -184,9 +185,12 @@ def download_file(name):
 
 def test_results():
     # Testing Hash Function
-    assert gethash("app/tests/hashtestfile5M", "sha1file") == "5bd40acb51a030a338ec4fbcd0e814c8aa774573"
-    assert gethash("app/tests/hashtestfile19M", "sha1file") == "e629195b8667a1448077028ee679fb4561cc4f46"
-    assert gethash("399d57923f81123f57c779d4bcad0539da76eb1e", "sha1text") == "94f8bce571411d1a013e0446e47e5224fc3682b0"
+    assert gethash("app/tests/hashtestfile5M", "sha1file")\
+           == "5bd40acb51a030a338ec4fbcd0e814c8aa774573"
+    assert gethash("app/tests/hashtestfile19M", "sha1file")\
+           == "e629195b8667a1448077028ee679fb4561cc4f46"
+    assert gethash("399d57923f81123f57c779d4bcad0539da76eb1e", "sha1text")\
+           == "94f8bce571411d1a013e0446e47e5224fc3682b0"
 
     # Testing ALLOWED_EXT check
     for ext in ALLOWED_EXT:
