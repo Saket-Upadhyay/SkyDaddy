@@ -3,6 +3,7 @@ disable=
     C0114, # missing-module-docstring
     C0115, # missing-docstring
     C0116, # missing-docstring
-    R1735, #Consider using '{}' instead of a call to 'dict'. (use-dict-literal)
+    R1735, # Consider using '{}' instead of a call to 'dict'. (use-dict-literal)
     W0642,
-    W0718 # broad-exception-caught
+    W0718, # broad-exception-caught
+    W0201  # Attribute 'key' defined outside __init__ (attribute-defined-outside-init)

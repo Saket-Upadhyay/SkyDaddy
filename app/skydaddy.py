@@ -59,12 +59,8 @@ BUF_SIZE = 65536
 class MyBigDic(dict):
     def __init__(self):
         self = dict()
-        self.key = ""
-        self.relation = ""
 
     def add(self, key, relation):
-        self.key = key
-        self.relation = relation
         self[key] = relation
 
 
