@@ -189,9 +189,9 @@ def test_results():
     assert gethash("399d57923f81123f57c779d4bcad0539da76eb1e", "sha1text") == "94f8bce571411d1a013e0446e47e5224fc3682b0"
 
     # Testing ALLOWED_EXT check
-    for x in ALLOWED_EXT:
+    for ext in ALLOWED_EXT:
         assert allowed_file(str(os.urandom(16))) is False
-        assert allowed_file(str(os.urandom(16)) + "." + x) is True
+        assert allowed_file(str(os.urandom(16)) + "." + ext) is True
 
 
 if __name__ == '__main__':
