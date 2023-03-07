@@ -1,6 +1,6 @@
 # SkyDaddy - Minimal, Scalable File Sharing Server
 
-![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/functiontests.yml/badge.svg) ![](https://badgen.net/badge/Python/3.10/blue?icon=python) ![](https://badgen.net/github/license/micromatch/micromatch)
+![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/functiontests.yml/badge.svg) ![](https://badgen.net/github/license/micromatch/micromatch?icon=github) ![](https://badgen.net/badge/Python/3.10/blue?icon=pypi) ![](https://badgen.net/badge/ARCH/ARM64,%20AMD64/cyan?icon=docker)
  
 > Tested on Ubuntu 22.04 LTS and MacOS Ventura 13.2.1
 
