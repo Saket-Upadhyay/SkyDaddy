@@ -1,3 +1,29 @@
+"""
+Main application module
+
+MIT License
+
+Copyright (c) 2023 Saket Upadhyay
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import base64
 import hashlib
 import json
@@ -6,17 +32,17 @@ import shutil
 import socket
 
 from flask import Flask, flash, request, redirect, send_from_directory, render_template, session
-from werkzeug.utils import secure_filename
-
 from flask_session import Session
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "./UPLOADS/"
-FILEHISTPATH = "./FILEHIST/"
-FILEHISTPATHFILE = "filehist.json"
+FILE_HISTORY_FOLDER_PATH = "./FILEHIST/"
+FILE_HISTORY_SHARED_RECORD = "filehist.json"
 MAX_CONTENT_LENGTH = 50 * 1000 * 1000  # 100 MB file limit size
-ALLOWED_EXT = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'h', 'cpp', 'zip', 'tar', 'xz', '7z', 'iso'}
+ALLOWED_EXT = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif',
+               'h', 'cpp', 'zip', 'tar', 'xz', '7z', 'iso'}
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -29,12 +55,16 @@ Session(app)
 BUF_SIZE = 65536
 
 
-# Creating a dictionary to save hash-file relations
-class my_big_dic(dict):
+# noinspection PyMethodFirstArgAssignment
+class MyBigDic(dict):
     def __init__(self):
         self = dict()
+        self.key = ""
+        self.relation = ""
 
     def add(self, key, relation):
+        self.key = key
+        self.relation = relation
         self[key] = relation
 
 
@@ -42,7 +72,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
 
 
-def getHash(file):
+def gethash(file):
     sha1 = hashlib.sha1()
     with open(file, 'rb') as tarfile:
         while True:
@@ -55,17 +85,19 @@ def getHash(file):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
-    MAPOBJ = my_big_dic()
-    if not os.path.exists(FILEHISTPATH):
+    mapobj = MyBigDic()
+    if not os.path.exists(FILE_HISTORY_FOLDER_PATH):
         os.mkdir(UPLOAD_FOLDER)
     if not os.path.exists(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
 
-    if os.path.exists(FILEHISTPATH + FILEHISTPATHFILE):
-        with open(FILEHISTPATH + FILEHISTPATHFILE, "r") as fp:
-            TEMPMAPOBJ = json.load(fp)
-            for k in TEMPMAPOBJ.keys():
-                MAPOBJ.add(k, TEMPMAPOBJ[k])
+    if os.path.exists(FILE_HISTORY_FOLDER_PATH + FILE_HISTORY_SHARED_RECORD):
+        with open(FILE_HISTORY_FOLDER_PATH + FILE_HISTORY_SHARED_RECORD,
+                  "r",
+                  encoding="utf-8") as filepointer:
+            tempmapobj = json.load(filepointer)
+            for k in tempmapobj.keys():
+                mapobj.add(k, tempmapobj[k])
 
     session["user_name"] = "firstlastname"
     if request.method == 'POST':
@@ -79,32 +111,38 @@ def upload_file():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            FPATH = os.path.join(app.config['UPLOAD_FOLDER'] + filename)
-            file.save(FPATH)
+            fpath = os.path.join(app.config['UPLOAD_FOLDER'] + filename)
+            file.save(fpath)
             flash("File Uploaded Succesfully")
             print(filename)
-            CODE = getHash(FPATH)
-            MAPOBJ.key = CODE
-            MAPOBJ.relation = filename
-            MAPOBJ.add(MAPOBJ.key, MAPOBJ.relation)
-            with open(FILEHISTPATH + FILEHISTPATHFILE, "w") as fp:
-                json.dump(MAPOBJ, fp)
+            code = gethash(fpath)
+            mapobj.key = code
+            mapobj.relation = filename
+            mapobj.add(mapobj.key, mapobj.relation)
+            with open(FILE_HISTORY_FOLDER_PATH + FILE_HISTORY_SHARED_RECORD,
+                      "w",
+                      encoding="utf-8") as filepointer:
+                json.dump(mapobj, filepointer)
 
-            return render_template("postload.html", FCODE=CODE)
+            return render_template("postload.html", FCODE=code)
 
-    return render_template("uploadtemplate.html", ALLOWEDEXTS=str(ALLOWED_EXT)[1:-1],
-                           CONTENTLENGTH="< " + str(MAX_CONTENT_LENGTH / (1000 * 1000)), HOSTER=socket.gethostname(),
+    return render_template("uploadtemplate.html",
+                           ALLOWEDEXTS=str(ALLOWED_EXT)[1:-1],
+                           CONTENTLENGTH="< " + str(MAX_CONTENT_LENGTH / (1000 * 1000)),
+                           HOSTER=socket.gethostname(),
                            CLIENT=request.remote_addr)
 
 
 @app.route('/uploads/<name>')
 def download_file(name):
-    MAPOBJ = my_big_dic()
-    if os.path.exists(FILEHISTPATH + FILEHISTPATHFILE):
-        with open(FILEHISTPATH + FILEHISTPATHFILE, "r") as fp:
-            TEMPMAPOBJ = json.load(fp)
-            for k in TEMPMAPOBJ.keys():
-                MAPOBJ.add(k, TEMPMAPOBJ[k])
+    mapobj = MyBigDic()
+    if os.path.exists(FILE_HISTORY_FOLDER_PATH + FILE_HISTORY_SHARED_RECORD):
+        with open(FILE_HISTORY_FOLDER_PATH + FILE_HISTORY_SHARED_RECORD,
+                  "r",
+                  encoding="utf-8") as filepointer:
+            tempmapobj = json.load(filepointer)
+            for k in tempmapobj.keys():
+                mapobj.add(k, tempmapobj[k])
 
     if name == "RESETCACHE":
         try:
@@ -112,25 +150,32 @@ def download_file(name):
                 if os.path.isfile(app.config["UPLOAD_FOLDER"] + "/" + file):
                     os.remove(app.config["UPLOAD_FOLDER"] + file)
 
-            with open(FILEHISTPATH + FILEHISTPATHFILE, "w") as fp:
+            with open(FILE_HISTORY_FOLDER_PATH + FILE_HISTORY_SHARED_RECORD,
+                      "w",
+                      encoding="utf-8") as filepointer:
                 my_temp_dic = {}
-                json.dump(my_temp_dic, fp)
+                json.dump(my_temp_dic, filepointer)
             return "COMMAND OK"
+
         except Exception:
             return "COMMAND FAIL"
+
     elif name == "SAVELOCAL":
         try:
             for file in os.listdir(app.config["UPLOAD_FOLDER"]):
                 print(app.config["UPLOAD_FOLDER"] + "/" + file)
                 shutil.copy(app.config["UPLOAD_FOLDER"] + file, "./PERMA/" + file)
             return "COMMAND OK"
+
         except Exception:
             return "COMMAND FAIL"
+
     else:
         try:
-            return send_from_directory(app.config["UPLOAD_FOLDER"], MAPOBJ[name])
-        except Exception as e:
-            return "FILE NOT FOUND"
+            return send_from_directory(app.config["UPLOAD_FOLDER"], mapobj[name])
+
+        except Exception:
+            return "COMMAND FAIL"
 
 
 if __name__ == '__main__':
