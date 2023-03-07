@@ -1,6 +1,6 @@
 # SkyDaddy - Minimal, Scalable File Sharing Server
 
-![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy//actions/workflows/pylint.yml/badge.svg)
+![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy//actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy//actions/workflows/functiontests.yml/badge.svg)
 
 > Tested on Ubuntu 22.04 LTS and MacOS Ventura 13.2.1
 
