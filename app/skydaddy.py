@@ -32,8 +32,9 @@ import shutil
 import socket
 
 from flask import Flask, flash, request, redirect, send_from_directory, render_template, session
-from flask_session import Session
 from werkzeug.utils import secure_filename
+
+from flask_session import Session
 
 app = Flask(__name__)
 
@@ -59,6 +60,7 @@ BUF_SIZE = 65536
 class MyBigDic(dict):
     def __init__(self):
         self = dict()
+        self.clear()
 
     def add(self, key, relation):
         self[key] = relation
