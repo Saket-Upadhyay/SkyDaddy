@@ -188,8 +188,8 @@ def test_results():
 
     # Testing ALLOWED_EXT check
     for x in ALLOWED_EXT:
-        assert allowed_file(str(os.urandom(16))) == False
-        assert allowed_file(str(os.urandom(16)) + "." + x) == True
+        assert allowed_file(str(os.urandom(16))) is False
+        assert allowed_file(str(os.urandom(16)) + "." + x) is True
 
 
 if __name__ == '__main__':
