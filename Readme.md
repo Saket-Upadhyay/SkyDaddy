@@ -93,6 +93,20 @@ script call:
 ```shell
 ./serve_docker.sh --build
 ```
+---
+
+### Pull image from DockerHub
+if you don't want to build the image yourself, there are two versions of docker images avaliable at [DockerHub/x64mayhem/skydaddy] (https://hub.docker.com/r/x64mayhem/skydaddy)
+
+#### ARM64 (Mac Mx)
+```shell
+docker pull x64mayhem/skydaddy:arm64
+```
+
+#### AMD64 (Intel/AMD 64-bit)
+```shell
+docker pull x64mayhem/skydaddy:amd64
+```
 
 ---
 
