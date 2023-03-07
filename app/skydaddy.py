@@ -68,21 +68,27 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
 
 
-def gethash(file):
-    sha1 = hashlib.sha1()
-    with open(file, 'rb') as tarfile:
-        while True:
-            rwdata = tarfile.read(BUF_SIZE)
-            if not rwdata:
-                break
-            sha1.update(rwdata)
-    return sha1.hexdigest()
+def gethash(file, mode):
+    if mode == "sha1file":
+        sha1 = hashlib.sha1()
+        with open(file, 'rb') as tarfile:
+            while True:
+                rwdata = tarfile.read(BUF_SIZE)
+                if not rwdata:
+                    break
+                sha1.update(rwdata)
+        return sha1.hexdigest()
+    if mode == "sha1text":
+        sha1 = hashlib.sha1()
+        rwdata = file.encode("utf-8")
+        sha1.update(rwdata)
+        return sha1.hexdigest()
 
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     mapobj = MyBigDic()
-    if not os.path.exists(FILE_HISTORY_FOLDER_PATH):
+    if not os.path.exists(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
     if not os.path.exists(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
@@ -111,8 +117,8 @@ def upload_file():
             file.save(fpath)
             flash("File Uploaded Succesfully")
             print(filename)
-            code = gethash(fpath)
-            mapobj.key = code
+            filehash = gethash(fpath, "sha1")
+            mapobj.key = filehash
             mapobj.relation = filename
             mapobj.add(mapobj.key, mapobj.relation)
             with open(FILE_HISTORY_FOLDER_PATH + FILE_HISTORY_SHARED_RECORD,
@@ -120,7 +126,7 @@ def upload_file():
                       encoding="utf-8") as filepointer:
                 json.dump(mapobj, filepointer)
 
-            return render_template("postload.html", FCODE=code)
+            return render_template("postload.html", FCODE=filehash)
 
     return render_template("uploadtemplate.html",
                            ALLOWEDEXTS=str(ALLOWED_EXT)[1:-1],
@@ -172,6 +178,18 @@ def download_file(name):
 
         except Exception:
             return "COMMAND FAIL"
+
+
+def test_results():
+    # Testing Hash Function
+    assert gethash("app/tests/hashtestfile5M", "sha1file") == "5bd40acb51a030a338ec4fbcd0e814c8aa774573"
+    assert gethash("app/tests/hashtestfile19M", "sha1file") == "e629195b8667a1448077028ee679fb4561cc4f46"
+    assert gethash("399d57923f81123f57c779d4bcad0539da76eb1e", "sha1text") == "94f8bce571411d1a013e0446e47e5224fc3682b0"
+
+    # Testing ALLOWED_EXT check
+    for x in ALLOWED_EXT:
+        assert allowed_file(str(os.urandom(16))) == False
+        assert allowed_file(str(os.urandom(16)) + "." + x) == True
 
 
 if __name__ == '__main__':
