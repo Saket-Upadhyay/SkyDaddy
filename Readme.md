@@ -1,10 +1,17 @@
 # SkyDaddy - Minimal, Scalable File Sharing Server
 
-![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy//actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy//actions/workflows/functiontests.yml/badge.svg)
+![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/functiontests.yml/badge.svg)
 
 > Tested on Ubuntu 22.04 LTS and MacOS Ventura 13.2.1
 
+You can deploy this application without scaling using gunicorn on your local machine/server, or you can utilise docker
+to scale the application.
+If you intend to use this with more than 3-4 users, it is recommended that you scale it up.
+
 ## Local Hosting
+
+To deploy this on your local machine, you will need to install python3. It is suggested that you use a virtual
+environment to set up the dependencies.
 
 ### Python Setup
 
@@ -48,9 +55,9 @@ source ~/SkyDaddyEnv/bin/activate
 ### Scaling factor
 
 You can change the number of instances you want to run by changing the `replicas: 3` under `deploy:`
-in `skydaddy servcice` in `docker-compose.yml`
+in `skydaddy service` in `docker-compose.yml`
 or you can pass the `--scale skydaddy=x` (where `x` is the number of instances you want to run) to `./serve_docker`
-script.
+script. The later will override the parameters of the compose configuration.
 
 ```yml
 version: "3.9"
@@ -59,17 +66,25 @@ services:
   skydaddy:
     build:
       context: app
-  <...>
-deploy:
-  replicas: 3
-  <...>
+#  <...>
+    deploy:
+      replicas: 3
+#  <...>
 
 ```
 
 ### Composing
+You can compose the containers using `./serve_docker.sh` by -
 
 ```shell
 ./serve_docker.sh
+```
+
+or
+
+You can manually do it by - 
+```shell
+docker compose up -d --build --scale skydaddy=3 nginx=1
 ```
 
 You can also pass [parameters for docker compose](https://docs.docker.com/compose/reference/) by appending them to the
@@ -79,9 +94,15 @@ script call:
 ./serve_docker.sh --build
 ```
 
-or
+---
 
-```shell
-./serve_docker.sh --build --scale skydaddy=10 ngnix=2
-```
+### TODO
+- [x] Add linter workflow (Code:Readability)
+- [x] Add function tests (Code:Correctness)
+- [ ] Improve UI (Design:UI/UX)
+- [ ] Add password lock on commands. (Security:Authentication)
+- [ ] Implement public key encryption while storing files. (Security:Privacy, Security:Confidentiality)
 
+### License
+
+MIT | [Copyright (c) 2023 Saket Upadhyay](./LICENSE)
