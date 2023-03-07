@@ -1,7 +1,7 @@
 # SkyDaddy - Minimal, Scalable File Sharing Server
 
-![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/functiontests.yml/badge.svg)
-
+![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/functiontests.yml/badge.svg) ![](https://badgen.net/badge/Python/3.10/blue?icon=python) ![](https://badgen.net/github/license/micromatch/micromatch)
+ 
 > Tested on Ubuntu 22.04 LTS and MacOS Ventura 13.2.1
 
 You can deploy this application without scaling using gunicorn on your local machine/server, or you can utilise docker
