@@ -1,4 +1,3 @@
-import pathlib
 import shutil
 import socket
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, render_template, session
@@ -55,8 +54,10 @@ def getHash(file):
     return sha1.hexdigest()
 
 
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+
     if not os.path.exists(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
 
