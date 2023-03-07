@@ -1,18 +1,22 @@
+import base64
+import hashlib
+import json
+import os
 import shutil
 import socket
-from flask import Flask, flash, request, redirect, url_for, send_from_directory, render_template, session
-import os
-from flask_session import Session
-import base64
+
+from flask import Flask, flash, request, redirect, send_from_directory, render_template, session
 from werkzeug.utils import secure_filename
-import hashlib
+
+from flask_session import Session
 
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "./UPLOADS/"
-MAX_CONTENT_LENGTH=50 * 1000 * 1000  # 100 MB file limit size
+FILEHISTPATH = "./FILEHIST/"
+FILEHISTPATHFILE = "filehist.json"
+MAX_CONTENT_LENGTH = 50 * 1000 * 1000  # 100 MB file limit size
 ALLOWED_EXT = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'h', 'cpp', 'zip', 'tar', 'xz', '7z', 'iso'}
-
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -34,11 +38,6 @@ class my_big_dic(dict):
         self[key] = relation
 
 
-MAPOBJ = my_big_dic()
-
-
-
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
 
@@ -54,12 +53,19 @@ def getHash(file):
     return sha1.hexdigest()
 
 
-
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
-
+    MAPOBJ = my_big_dic()
+    if not os.path.exists(FILEHISTPATH):
+        os.mkdir(UPLOAD_FOLDER)
     if not os.path.exists(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
+
+    if os.path.exists(FILEHISTPATH + FILEHISTPATHFILE):
+        with open(FILEHISTPATH + FILEHISTPATHFILE, "r") as fp:
+            TEMPMAPOBJ = json.load(fp)
+            for k in TEMPMAPOBJ.keys():
+                MAPOBJ.add(k, TEMPMAPOBJ[k])
 
     session["user_name"] = "firstlastname"
     if request.method == 'POST':
@@ -81,36 +87,50 @@ def upload_file():
             MAPOBJ.key = CODE
             MAPOBJ.relation = filename
             MAPOBJ.add(MAPOBJ.key, MAPOBJ.relation)
+            with open(FILEHISTPATH + FILEHISTPATHFILE, "w") as fp:
+                json.dump(MAPOBJ, fp)
+
             return render_template("postload.html", FCODE=CODE)
 
-            # return redirect(url_for('download_file',name=filename))
-
-    return render_template("uploadtemplate.html",ALLOWEDEXTS=str(ALLOWED_EXT)[1:-1], CONTENTLENGTH="< "+str(MAX_CONTENT_LENGTH/(1000*1000)),HOSTER=socket.gethostname(), CLIENT=request.remote_addr)
+    return render_template("uploadtemplate.html", ALLOWEDEXTS=str(ALLOWED_EXT)[1:-1],
+                           CONTENTLENGTH="< " + str(MAX_CONTENT_LENGTH / (1000 * 1000)), HOSTER=socket.gethostname(),
+                           CLIENT=request.remote_addr)
 
 
 @app.route('/uploads/<name>')
 def download_file(name):
+    MAPOBJ = my_big_dic()
+    if os.path.exists(FILEHISTPATH + FILEHISTPATHFILE):
+        with open(FILEHISTPATH + FILEHISTPATHFILE, "r") as fp:
+            TEMPMAPOBJ = json.load(fp)
+            for k in TEMPMAPOBJ.keys():
+                MAPOBJ.add(k, TEMPMAPOBJ[k])
+
     if name == "RESETCACHE":
         try:
             for file in os.listdir(app.config["UPLOAD_FOLDER"]):
-                if os.path.isfile(app.config["UPLOAD_FOLDER"]+"/"+file):
-                    os.remove(app.config["UPLOAD_FOLDER"]+file)
+                if os.path.isfile(app.config["UPLOAD_FOLDER"] + "/" + file):
+                    os.remove(app.config["UPLOAD_FOLDER"] + file)
+
+            with open(FILEHISTPATH + FILEHISTPATHFILE, "w") as fp:
+                my_temp_dic = {}
+                json.dump(my_temp_dic, fp)
             return "COMMAND OK"
         except Exception:
             return "COMMAND FAIL"
     elif name == "SAVELOCAL":
         try:
             for file in os.listdir(app.config["UPLOAD_FOLDER"]):
-                print(app.config["UPLOAD_FOLDER"]+"/"+file)
-                shutil.copy(app.config["UPLOAD_FOLDER"]+file,"./PERMA/"+file)
+                print(app.config["UPLOAD_FOLDER"] + "/" + file)
+                shutil.copy(app.config["UPLOAD_FOLDER"] + file, "./PERMA/" + file)
             return "COMMAND OK"
         except Exception:
             return "COMMAND FAIL"
     else:
         try:
             return send_from_directory(app.config["UPLOAD_FOLDER"], MAPOBJ[name])
-        except Exception:
-            return "NO SUCH FILE"
+        except Exception as e:
+            return "FILE NOT FOUND"
 
 
 if __name__ == '__main__':

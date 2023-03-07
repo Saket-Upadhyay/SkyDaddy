@@ -13,6 +13,14 @@ services:
         source: ./app/UPLOADS
         target: /app/UPLOADS
 
+      - type: bind
+        source: ./app/PERMA
+        target: /app/PERMA
+
+      - type: bind
+        source: ./app/FILEHIST/filehist.json
+        target: /app/FILEHIST/filehist.json
+
   ngnix:
     image: nginx:latest
     volumes:
