@@ -120,7 +120,7 @@ def upload_file():
             file.save(fpath)
             flash("File Uploaded Succesfully")
             print(filename)
-            filehash = gethash(fpath, "sha1")
+            filehash = gethash(fpath, "sha1file")
             mapobj.key = filehash
             mapobj.relation = filename
             mapobj.add(mapobj.key, mapobj.relation)
