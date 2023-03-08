@@ -52,9 +52,13 @@ source ~/SkyDaddyEnv/bin/activate
 
 ## Docker deployment & Scaling
 
+#### Install Docker
+You will need a working docker service on your host machine. [HOW TO](https://docs.docker.com/get-docker/)
+
+### Deployment
 > By default, the application is scaled to 3 instances of skydaddy servers and 1 instance of nginx.
 
-### Scaling factor
+#### Scaling factor
 
 You can change the number of instances you want to run by changing the `replicas: 3` under `deploy:`
 in `skydaddy service` in `docker-compose.yml`
@@ -75,7 +79,7 @@ services:
 
 ```
 
-### Composing
+#### Composing
 You can compose the containers using `./serve_docker.sh` by -
 
 ```shell
@@ -97,15 +101,15 @@ script call:
 ```
 ---
 
-### Pull image from DockerHub
+#### Pull image from DockerHub
 if you don't want to build the image yourself, there are two versions of docker images avaliable at [DockerHub/x64mayhem/skydaddy] (https://hub.docker.com/r/x64mayhem/skydaddy)
 
-#### ARM64 (Mac Mx)
+##### ARM64 (Mac Mx)
 ```shell
 docker pull x64mayhem/skydaddy:arm64
 ```
 
-#### AMD64 (Intel/AMD 64-bit)
+##### AMD64 (Intel/AMD 64-bit)
 ```shell
 docker pull x64mayhem/skydaddy:amd64
 ```
