@@ -102,7 +102,7 @@ script call:
 ---
 
 #### Pull image from DockerHub
-if you don't want to build the image yourself, there are two versions of docker images avaliable at [DockerHub/x64mayhem/skydaddy] (https://hub.docker.com/r/x64mayhem/skydaddy)
+if you don't want to build the image yourself, there are two versions of docker images avaliable at [DockerHub/x64mayhem/skydaddy](https://hub.docker.com/r/x64mayhem/skydaddy)
 
 ##### ARM64 (Mac Mx)
 ```shell
