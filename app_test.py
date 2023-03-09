@@ -24,9 +24,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import unittest
-from app import skydaddy
 import os
+import unittest
+
+from app import skydaddy
 
 
 class TestHash(unittest.TestCase):
