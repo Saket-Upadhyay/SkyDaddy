@@ -80,19 +80,12 @@ def gethash(file, mode):
                     break
                 sha1.update(rwdata)
         return sha1.hexdigest()
-    if mode == "sha1text":
-        sha1 = hashlib.sha1()
-        rwdata = file.encode("utf-8")
-        sha1.update(rwdata)
-        return sha1.hexdigest()
     return None
 
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     mapobj = MyBigDic()
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.mkdir(UPLOAD_FOLDER)
     if not os.path.exists(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
 
@@ -161,7 +154,6 @@ def download_file(name):
                 my_temp_dic = {}
                 json.dump(my_temp_dic, filepointer)
             return "COMMAND OK"
-
         except Exception:
             return "COMMAND FAIL"
 
@@ -171,31 +163,14 @@ def download_file(name):
                 print(app.config["UPLOAD_FOLDER"] + "/" + file)
                 shutil.copy(app.config["UPLOAD_FOLDER"] + file, "./PERMA/" + file)
             return "COMMAND OK"
-
         except Exception:
             return "COMMAND FAIL"
 
     else:
         try:
             return send_from_directory(app.config["UPLOAD_FOLDER"], mapobj[name])
-
         except Exception:
             return "COMMAND FAIL"
-
-
-def test_results():
-    # Testing Hash Function
-    assert gethash("app/tests/hashtestfile5M", "sha1file")\
-           == "5bd40acb51a030a338ec4fbcd0e814c8aa774573"
-    assert gethash("app/tests/hashtestfile19M", "sha1file")\
-           == "e629195b8667a1448077028ee679fb4561cc4f46"
-    assert gethash("399d57923f81123f57c779d4bcad0539da76eb1e", "sha1text")\
-           == "94f8bce571411d1a013e0446e47e5224fc3682b0"
-
-    # Testing ALLOWED_EXT check
-    for ext in ALLOWED_EXT:
-        assert allowed_file(str(os.urandom(16))) is False
-        assert allowed_file(str(os.urandom(16)) + "." + ext) is True
 
 
 if __name__ == '__main__':

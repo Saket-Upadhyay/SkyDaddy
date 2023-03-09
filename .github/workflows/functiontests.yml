@@ -36,4 +36,4 @@ jobs:
         flake8 ./app/ --count --exit-zero --max-complexity=14 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest ./app/skydaddy.py
+        pytest
