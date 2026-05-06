@@ -44,7 +44,7 @@ htmlcov/
 .coverage.*
 .cache
 nosetests.xml
-#coverage.xml
+coverage.xml
 *.cover
 *.py,cover
 .hypothesis/
@@ -64,6 +64,16 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
+flask_session/
+
+# SkyDaddy runtime data
+UPLOADS/
+PERMA/
+file_map.json
+
+# uv
+.python-version
+uv.lock
 
 # Scrapy stuff:
 .scrapy
@@ -236,5 +246,3 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
-
-flask_session/

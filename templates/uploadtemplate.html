@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SkyDaddy by DrDope</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flash-messages">
+      {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form method="post" enctype="multipart/form-data">
+  <span id="filename">Select your file</span>
+  <label for="file-upload">Browse<input type="file" name="file" id="file-upload"></label>
+  <label for="file-submit">Upload<input type="submit" id="file-submit"></label>
+</form>
+
+<div id="progress-container">
+  <div id="progress-track">
+    <div id="progress-bar"></div>
+  </div>
+  <span id="progress-text">0%</span>
+</div>
+
+<div id="upload-result"></div>
+
+<br>
+<input id="downloadcode" type="text" name="downloadcode" placeholder="Enter file code">
+<label for="file-download">Download File<button type="button" id="file-download" onclick="callDownCode()">Download</button></label>
+
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+@import url("https://fonts.googleapis.com/css?family=Spinnaker");
+body {
+  background-image: url("/static/SkyDaddy.png");
+  background-size: cover;
+  object-fit: contain;
+  color: #ecf0f1;
+  font-family: lato,sans-serif;
+  text-align: center;
+  margin: 10% auto;
+  display: table;
+}
+
+form {
+  text-align: left;
+}
+
+#file-upload {
+  position: absolute;
+  left: -9999px;
+}
+
+label[for="file-upload"] {
+  padding: 0.5em;
+  display: inline-block;
+  background: black;
+  cursor: pointer;
+}
+label[for="file-upload"]:hover {
+  background: red;
+}
+
+#file-submit{
+  position: absolute;
+  left: -9999px;
+}
+
+label[for="file-submit"] {
+  padding: 0.5em;
+  display: inline-block;
+  background: black;
+  cursor: pointer;
+}
+label[for="file-submit"]:hover {
+  background: red;
+}
+#file-download{
+  position: absolute;
+  left: -9999px;
+}
+
+label[for="file-download"] {
+  padding: 0.5em;
+  display: inline-block;
+  background: black;
+  cursor: pointer;
+}
+label[for="file-download"]:hover {
+  background: red;
+}
+
+
+
+
+#filename {
+  padding: 0.5em;
+  float: left;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  background: black;
+}
+#downloadcode {
+  padding: 0.5em;
+  float: left;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  color: white;
+  background: black;
+}
+
+#progress-container {
+  display: none;
+  margin: 1em 0;
+  text-align: left;
+}
+
+#progress-track {
+  background: #111;
+  height: 8px;
+  width: 300px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  background: red;
+  border-radius: 4px;
+  transition: width 0.15s ease;
+}
+
+#progress-text {
+  margin-left: 0.5em;
+  font-size: 0.85em;
+  vertical-align: middle;
+}
+
+#upload-result {
+  display: none;
+  margin: 1em 0;
+  padding: 0.5em;
+  background: black;
+}
+
+#upload-result code {
+  color: red;
+  font-size: 1.1em;
+  user-select: all;
+}
+
+.result-err {
+  color: #e74c3c;
+}
+
+.result-ok {
+  color: #ecf0f1;
+}
+
+.flash-messages {
+  list-style: none;
+  padding: 0;
+  color: #e74c3c;
+}
