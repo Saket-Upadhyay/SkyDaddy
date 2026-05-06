@@ -1,12 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SkyDaddy by DrDope - Uploaded</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SKYDADDY :: TRANSFER COMPLETE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h3>Your file code is: <code>{{ FCODE }}</code></h3>
-<p><a href="{{ url_for('upload_file') }}">Upload another file</a></p>
+<div class="screen">
+
+  <div class="header">
+    <pre class="ascii-logo">╔═╗╦╔═╦ ╦╔╦╗╔═╗╔╦╗╔╦╗╦ ╦
+╚═╗╠╩╗╚╦╝ ║║╠═╣ ║║ ║║╚╦╝
+╚═╝╩ ╩ ╩ ═╩╝╩ ╩═╩╝═╩╝ ╩ </pre>
+    <div class="header-sub">FILE TRANSFER SYSTEM v1.0 ░ SESSION ACTIVE<span class="cursor">█</span></div>
+  </div>
+
+  <div class="terminal-box" data-title="[ TRANSFER COMPLETE ]">
+    <div class="section-label">UPLOAD SUCCESSFUL</div>
+    <p class="xfer-intro">FILE RECEIVED AND STORED.<br>SHARE THE CODE BELOW TO ALLOW RETRIEVAL.</p>
+    <div class="code-label">SHA1 FILE CODE:</div>
+    <div class="code-display" id="code-val" onclick="copyCode()" title="Click to copy">{{ FCODE }}</div>
+    <div class="copy-hint">> CLICK CODE TO COPY TO CLIPBOARD</div>
+    <div class="btn-row" style="margin-top:1.25rem">
+      <a href="{{ url_for('upload_file') }}" class="btn">[UPLOAD ANOTHER]</a>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span>SYS: ONLINE</span>
+    <span>LAST OP: UPLOAD OK</span>
+    <span>SIZE: UNLIMITED</span>
+  </div>
+
+</div>
+<script>
+function copyCode() {
+  var el = document.getElementById('code-val');
+  var text = el.textContent.trim();
+  navigator.clipboard.writeText(text).then(function () {
+    el.textContent = '[ COPIED TO CLIPBOARD ]';
+    setTimeout(function () { el.textContent = text; }, 1500);
+  });
+}
+</script>
 </body>
 </html>

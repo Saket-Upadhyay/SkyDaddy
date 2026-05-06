@@ -1,42 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SkyDaddy by DrDope</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SKYDADDY :: FILE XFER SYSTEM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+<div class="screen">
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class="flash-messages">
-      {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-<form method="post" enctype="multipart/form-data">
-  <span id="filename">Select your file</span>
-  <label for="file-upload">Browse<input type="file" name="file" id="file-upload"></label>
-  <label for="file-submit">Upload<input type="submit" id="file-submit"></label>
-</form>
-
-<div id="progress-container">
-  <div id="progress-track">
-    <div id="progress-bar"></div>
+  <div class="header">
+    <pre class="ascii-logo">╔═╗╦╔═╦ ╦╔╦╗╔═╗╔╦╗╔╦╗╦ ╦
+╚═╗╠╩╗╚╦╝ ║║╠═╣ ║║ ║║╚╦╝
+╚═╝╩ ╩ ╩ ═╩╝╩ ╩═╩╝═╩╝ ╩ </pre>
+    <div class="header-sub">FILE TRANSFER SYSTEM v1.0 ░ BY Dr Dope<span class="cursor">█</span></div>
   </div>
-  <span id="progress-text">0%</span>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class="flash-messages">
+        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <div class="terminal-box" data-title="[ SEND FILE ]">
+    <div class="section-label">UPLOAD</div>
+    <form method="post" enctype="multipart/form-data" id="upload-form">
+      <div class="field-row">
+        <span class="field-prompt">FILE:</span>
+        <span id="filename">no file selected</span>
+        <input type="file" name="file" id="file-upload">
+      </div>
+      <input type="submit" id="file-submit">
+      <div class="btn-row">
+        <label for="file-upload" class="btn">[BROWSE]</label>
+        <label for="file-submit" class="btn btn-amber">[UPLOAD]</label>
+      </div>
+    </form>
+
+    <div id="progress-container">
+      <div id="progress-ascii">XFER: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] &nbsp;0%</div>
+    </div>
+
+    <div id="upload-result"></div>
+  </div>
+
+  <div class="terminal-box" data-title="[ RETRIEVE FILE ]">
+    <div class="section-label">DOWNLOAD BY CODE</div>
+    <div class="field-row">
+      <span class="field-prompt">CODE:</span>
+      <input id="downloadcode" type="text" name="downloadcode"
+             placeholder="enter sha1 code_" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="callDownCode()">[DOWNLOAD]</button>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span>SYS: ONLINE</span>
+    <span>EXT: TXT PDF PNG JPG GIF H CPP ZIP TAR XZ 7Z ISO</span>
+    <span>SIZE: UNLIMITED</span>
+  </div>
+
 </div>
-
-<div id="upload-result"></div>
-
-<br>
-<input id="downloadcode" type="text" name="downloadcode" placeholder="Enter file code">
-<label for="file-download">Download File<button type="button" id="file-download" onclick="callDownCode()">Download</button></label>
-
 <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
-
 </body>
 </html>

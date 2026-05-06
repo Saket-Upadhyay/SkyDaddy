@@ -18,7 +18,7 @@ app = Flask(__name__)
 UPLOAD_FOLDER = Path(os.environ.get("UPLOAD_FOLDER", "./UPLOADS"))
 PERMA_FOLDER = Path(os.environ.get("PERMA_FOLDER", "./PERMA"))
 MAP_FILE = Path(os.environ.get("MAP_FILE", "./file_map.json"))
-ALLOWED_EXT = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'h', 'cpp', 'zip', 'tar', 'xz', '7z', 'iso'}
+ALLOWED_EXT = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'h', 'cpp', 'zip', 'tar', 'xz', '7z', 'iso', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'csv', 'json', 'xml', 'md', 'mkv', 'mp4', 'avi', 'mov', 'mp3', 'wav', 'flac', 'ogg'}
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")
 
 app.config["SESSION_PERMANENT"] = False
@@ -47,6 +47,20 @@ def save_map(mapping: dict) -> None:
     except Exception:
         os.unlink(tmp)
         raise
+
+
+def _reconcile_map() -> None:
+    mapping = load_map()
+    stale = [code for code, entry in mapping.items()
+             if not (UPLOAD_FOLDER / entry["file"]).exists()]
+    if stale:
+        for code in stale:
+            del mapping[code]
+        save_map(mapping)
+        logger.info("Removed %d stale map entries: %s", len(stale), stale)
+
+
+_reconcile_map()
 
 
 def allowed_file(filename: str) -> bool:
@@ -166,4 +180,5 @@ def download_file(name):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8000, debug=False)
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=8000)
