@@ -13,3 +13,13 @@ dependencies = [
 [tool.uv.scripts]
 dev  = "flask --app app run --debug --port 8000"
 prod = "python app.py"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["tests/*", ".venv/*"]
+
+[tool.coverage.report]
+show_missing = true

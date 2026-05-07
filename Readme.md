@@ -1,126 +1,87 @@
 # SkyDaddy - Minimal, Scalable File Sharing Server Application
 
-[![codecov](https://codecov.io/github/Saket-Upadhyay/SkyDaddy/branch/main/graph/badge.svg?token=TRV79PJJ1P)](https://codecov.io/github/Saket-Upadhyay/SkyDaddy) ![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/functiontests.yml/badge.svg) ![](https://badgen.net/github/license/micromatch/micromatch?icon=github) ![](https://badgen.net/badge/Python/3.10/blue?icon=pypi) ![](https://badgen.net/badge/ARCH/ARM64,%20AMD64/cyan?icon=docker)
- 
+[![codecov](https://codecov.io/github/Saket-Upadhyay/SkyDaddy/branch/main/graph/badge.svg?token=TRV79PJJ1P)](https://codecov.io/github/Saket-Upadhyay/SkyDaddy) ![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/functiontests.yml/badge.svg) ![](https://badgen.net/github/license/micromatch/micromatch?icon=github) ![](https://badgen.net/badge/Python/3.14/blue?icon=pypi)
+
 > Tested on Ubuntu 22.04 LTS and MacOS Ventura 13.2.1
 
 ![](https://github.com/Saket-Upadhyay/SkyDaddy/blob/main/SkyDaddy%20Poster.png)
 
-You can deploy this application without scaling using gunicorn on your local machine/server, or you can utilise docker
-to scale the application.
-If you intend to use this with more than 3-4 users, it is recommended that you scale it up.
+You can deploy this application using [waitress](https://docs.pylonsproject.org/projects/waitress/) on your local machine/server.
 
 ## Local Hosting
 
-To deploy this on your local machine, you will need to install python3. It is suggested that you use a virtual
-environment to set up the dependencies.
+To deploy this on your local machine, you will need Python 3.14+ and [uv](https://github.com/astral-sh/uv).
 
-### Python Setup
+### Install uv
 
 ##### Ubuntu
 
 ```sh
-sudo apt-get install python3 python3-pip virtualenv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 ##### MacOS
 
 ```sh
-brew install python@3.9 virtualenv
+brew install uv
 ```
 
-### Create a virtual env.
+### Install required packages
 
 ```shell
-virtualenv -p $(which python3) ~/SkyDaddyEnv
+uv sync
 ```
 
-### Install required python packages
+### Running
 
-```shell
-source ~/SkyDaddyEnv/bin/activate
-pip install -r requirements.txt
-deactivate
-```
-
-### Hosting
-
+**Development** (auto-reloads on file changes):
 ```sh
-source ~/SkyDaddyEnv/bin/activate
-./serve_local.sh
+uv run dev
 ```
 
-## Docker deployment & Scaling
-
-#### Install Docker
-You will need a working docker service on your host machine. [HOW TO](https://docs.docker.com/get-docker/)
-
-### Deployment
-> By default, the application is scaled to 3 instances of skydaddy servers and 1 instance of nginx.
-
-#### Scaling factor
-
-You can change the number of instances you want to run by changing the `replicas: 3` under `deploy:`
-in `skydaddy service` in `docker-compose.yml`
-or you can pass the `--scale skydaddy=x` (where `x` is the number of instances you want to run) to `./serve_docker`
-script. The later will override the parameters of the compose configuration.
-
-```yml
-version: "3.9"
-
-services:
-  skydaddy:
-    build:
-      context: app
-#  <...>
-    deploy:
-      replicas: 3
-#  <...>
-
+**Production** (waitress WSGI server):
+```sh
+uv run prod
 ```
 
-#### Composing
-You can compose the containers using `./serve_docker.sh` by -
+The server starts on `http://0.0.0.0:8000`.
 
-```shell
-./serve_docker.sh
-```
+## Configuration
 
-or
+All options are set via environment variables.
 
-You can manually do it by - 
-```shell
-docker compose up -d --build --scale skydaddy=3 nginx=1
-```
+| Variable | Default | Description |
+|---|---|---|
+| `SECRET_KEY` | random (changes on restart) | Flask session secret — set a fixed value in production |
+| `UPLOAD_FOLDER` | `./UPLOADS` | Where uploaded files are stored |
+| `PERMA_FOLDER` | `./PERMA` | Destination for the SAVELOCAL command |
+| `MAP_FILE` | `./file_map.json` | Persisted SHA1 → filename mapping |
+| `ADMIN_TOKEN` | _(empty — no auth)_ | Token required for admin commands |
 
-You can also pass [parameters for docker compose](https://docs.docker.com/compose/reference/) by appending them to the
-script call:
+## Admin commands
 
-```shell
-./serve_docker.sh --build
-```
----
+Hit these endpoints as `GET /uploads/<command>?token=<ADMIN_TOKEN>`:
 
-#### Pull image from DockerHub
-if you don't want to build the image yourself, there are two versions of docker images avaliable at [DockerHub/x64mayhem/skydaddy](https://hub.docker.com/r/x64mayhem/skydaddy)
+| Command | Effect |
+|---|---|
+| `RESETCACHE` | Deletes all files in `UPLOAD_FOLDER` and clears the map |
+| `SAVELOCAL` | Copies all uploaded files to `PERMA_FOLDER` |
 
-##### ARM64 (Mac Mx)
-```shell
-docker pull x64mayhem/skydaddy:arm64
-```
+If `ADMIN_TOKEN` is not set, these commands are open to anyone. Set it in production.
 
-##### AMD64 (Intel/AMD 64-bit)
-```shell
-docker pull x64mayhem/skydaddy:amd64
-```
+## Supported file types
+
+`txt` `pdf` `png` `jpg` `jpeg` `gif` `h` `cpp` `zip` `tar` `xz` `7z` `iso`
+`doc` `docx` `xls` `xlsx` `ppt` `pptx` `csv` `json` `xml` `md`
+`mkv` `mp4` `avi` `mov` `mp3` `wav` `flac` `ogg`
 
 ---
 
 ### TODO
 - [x] Add linter workflow (Code:Readability)
 - [x] Add function tests (Code:Correctness)
-- [ ] Improve UI (Design:UI/UX)
-- [ ] Add password lock on commands. (Security:Authentication)
+- [x] Improve UI (Design:UI/UX)
+- [x] Add password lock on commands. (Security:Authentication)
 - [ ] Implement public key encryption while storing files. (Security:Privacy, Security:Confidentiality)
 
 ### License

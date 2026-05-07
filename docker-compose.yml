@@ -1,31 +1,21 @@
-version: "3.9"
-
 services:
   skydaddy:
-    build:
-      context: app
+    build: .
     ports:
-      - "5000"
-    deploy:
-      replicas: 3
+      - "8000:8000"
     volumes:
-      - type: bind
-        source: ./app/UPLOADS
-        target: /app/UPLOADS
+      - uploads:/app/UPLOADS
+      - perma:/app/PERMA
+      - sessions:/app/flask_session
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      UPLOAD_FOLDER: /app/UPLOADS
+      PERMA_FOLDER: /app/PERMA
+      MAP_FILE: /app/UPLOADS/file_map.json
+    restart: unless-stopped
 
-      - type: bind
-        source: ./app/PERMA
-        target: /app/PERMA
-
-      - type: bind
-        source: ./app/FILEHIST/filehist.json
-        target: /app/FILEHIST/filehist.json
-
-  ngnix:
-    image: nginx:latest
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - skydaddy
-    ports:
-      - "80:80"
+volumes:
+  uploads:
+  perma:
+  sessions:

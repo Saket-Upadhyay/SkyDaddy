@@ -1,0 +1,12 @@
+.git
+.venv
+__pycache__
+*.pyc
+.env
+UPLOADS/
+PERMA/
+flask_session/
+file_map.json
+.python-version
+.idea
+.DS_Store
