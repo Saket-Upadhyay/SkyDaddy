@@ -24,22 +24,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import hashlib
 import os
+import tempfile
 import unittest
+from pathlib import Path
 
-from app import skydaddy
+from app import ALLOWED_EXT, allowed_file, get_sha1
 
 
 class TestHash(unittest.TestCase):
-    # Testing Hash Function
     def test_hash(self):
-        self.assertEqual(skydaddy.gethash("app/tests/hashtestfile5M", "sha1file") \
-                         , "5bd40acb51a030a338ec4fbcd0e814c8aa774573")
-        self.assertEqual(skydaddy.gethash("app/tests/hashtestfile19M", "sha1file") \
-                         , "e629195b8667a1448077028ee679fb4561cc4f46")
+        content = b"skydaddy test content"
+        expected = hashlib.sha1(content).hexdigest()
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(content)
+            tmp = Path(f.name)
+        try:
+            self.assertEqual(get_sha1(tmp), expected)
+        finally:
+            tmp.unlink(missing_ok=True)
 
-    # Testing ALLOWED_EXT check
-    def test_allowedext(self):
-        for ext in skydaddy.ALLOWED_EXT:
-            self.assertFalse(skydaddy.allowed_file(str(os.urandom(16))))
-            self.assertTrue(skydaddy.allowed_file(str(os.urandom(16)) + "." + ext))
+    def test_hash_large(self):
+        content = os.urandom(200_000)
+        expected = hashlib.sha1(content).hexdigest()
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(content)
+            tmp = Path(f.name)
+        try:
+            self.assertEqual(get_sha1(tmp), expected)
+        finally:
+            tmp.unlink(missing_ok=True)
+
+
+class TestAllowedExt(unittest.TestCase):
+    def test_allowed_extensions(self):
+        for ext in ALLOWED_EXT:
+            self.assertTrue(allowed_file("somefile." + ext))
+            self.assertTrue(allowed_file("somefile." + ext.upper()))
+
+    def test_blocked_extensions(self):
+        for ext in ("exe", "sh", "bat", "js", "php", "py"):
+            self.assertFalse(allowed_file("malicious." + ext))
+
+    def test_no_extension(self):
+        self.assertFalse(allowed_file("nodotfile"))
+
+    def test_empty_string(self):
+        self.assertFalse(allowed_file(""))

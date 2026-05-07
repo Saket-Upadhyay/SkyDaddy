@@ -2,8 +2,9 @@ FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim
 
 WORKDIR /app
 
-# Install dependencies first for layer caching
-COPY pyproject.toml uv.lock ./
+# main.py is the entry-point module — copy with metadata so setuptools
+# can build the project scripts before copying the rest of the app
+COPY pyproject.toml uv.lock main.py ./
 RUN uv sync --frozen --no-dev
 
 # Copy application code

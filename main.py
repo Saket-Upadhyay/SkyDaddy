@@ -1,6 +1,18 @@
-def main():
-    print("Hello from skydaddy!")
+import subprocess
+import sys
 
 
-if __name__ == "__main__":
-    main()
+def dev():
+    raise SystemExit(
+        subprocess.run(
+            [sys.executable, "-m", "flask", "--app", "app",
+             "run", "--debug", "--port", "8000"],
+            check=False,
+        ).returncode
+    )
+
+
+def prod():
+    raise SystemExit(
+        subprocess.run([sys.executable, "app.py"], check=False).returncode
+    )
