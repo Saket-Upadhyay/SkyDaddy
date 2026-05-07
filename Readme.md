@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/github/Saket-Upadhyay/SkyDaddy/branch/main/graph/badge.svg?token=TRV79PJJ1P)](https://codecov.io/github/Saket-Upadhyay/SkyDaddy) ![pylint workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/pylint.yml/badge.svg) ![function tests workflow](https://github.com/Saket-Upadhyay/SkyDaddy/actions/workflows/functiontests.yml/badge.svg) ![](https://badgen.net/github/license/micromatch/micromatch?icon=github) ![](https://badgen.net/badge/Python/3.14/blue?icon=pypi)
 
-> Tested on Ubuntu 22.04 LTS and MacOS Ventura 13.2.1
+> Tested on Ubuntu 24.04 LTS and MacOS Tahoe 26.4.1
 
 ![](https://github.com/Saket-Upadhyay/SkyDaddy/blob/main/SkyDaddy%20Poster.png)
 
