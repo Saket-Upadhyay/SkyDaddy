@@ -16,11 +16,12 @@ services:
       MAP_FILE: /app/UPLOADS/file_map.json
       MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-5368709120}
     restart: unless-stopped
+    networks:
+      - internal
 
   nginx:
     build: ./docker/nginx
     ports:
-      - "8080:80"
       - "443:443"
     depends_on:
       - skydaddy
@@ -30,9 +31,15 @@ services:
       CERT_CN: ${CERT_CN:-skydaddy.local}
       CERT_DAYS: ${CERT_DAYS:-365}
     restart: unless-stopped
+    networks:
+      - internal
 
 volumes:
   uploads:
   perma:
   sessions:
   nginx_certs:
+
+networks:
+  internal:
+    driver: bridge
