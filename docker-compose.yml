@@ -3,6 +3,7 @@ services:
     build: .
     expose:
       - "8080"
+      - "443"
     volumes:
       - uploads:/app/UPLOADS
       - perma:/app/PERMA
@@ -19,7 +20,7 @@ services:
   nginx:
     build: ./docker/nginx
     ports:
-      - "80:80"
+      - "8080:80"
       - "443:443"
     depends_on:
       - skydaddy
