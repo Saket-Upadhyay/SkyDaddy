@@ -30,29 +30,29 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from app import ALLOWED_EXT, allowed_file, get_sha1
+from app import ALLOWED_EXT, allowed_file, get_sha256
 
 
 class TestHash(unittest.TestCase):
     def test_hash(self):
         content = b"skydaddy test content"
-        expected = hashlib.sha1(content).hexdigest()
+        expected = hashlib.sha256(content).hexdigest()
         with tempfile.NamedTemporaryFile(delete=False) as f:
             f.write(content)
             tmp = Path(f.name)
         try:
-            self.assertEqual(get_sha1(tmp), expected)
+            self.assertEqual(get_sha256(tmp), expected)
         finally:
             tmp.unlink(missing_ok=True)
 
     def test_hash_large(self):
         content = os.urandom(200_000)
-        expected = hashlib.sha1(content).hexdigest()
+        expected = hashlib.sha256(content).hexdigest()
         with tempfile.NamedTemporaryFile(delete=False) as f:
             f.write(content)
             tmp = Path(f.name)
         try:
-            self.assertEqual(get_sha1(tmp), expected)
+            self.assertEqual(get_sha256(tmp), expected)
         finally:
             tmp.unlink(missing_ok=True)
 

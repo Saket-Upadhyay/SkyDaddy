@@ -46,6 +46,20 @@ uv run prod
 
 The server starts on `http://0.0.0.0:8000`.
 
+## HTTPS (Docker + self-signed)
+
+The docker setup can generate a self-signed certificate and serve the app over HTTPS via nginx.
+
+```sh
+docker compose up --build
+```
+
+Open `https://<server-ip>` from another device. Your browser will warn about the self-signed cert; accept it to proceed.
+
+Optional overrides:
+- `CERT_CN` (default `skydaddy.local`)
+- `CERT_DAYS` (default `365`)
+
 ## Configuration
 
 All options are set via environment variables.
@@ -55,8 +69,11 @@ All options are set via environment variables.
 | `SECRET_KEY` | random (changes on restart) | Flask session secret — set a fixed value in production |
 | `UPLOAD_FOLDER` | `./UPLOADS` | Where uploaded files are stored |
 | `PERMA_FOLDER` | `./PERMA` | Destination for the SAVELOCAL command |
-| `MAP_FILE` | `./file_map.json` | Persisted SHA1 → filename mapping |
+| `MAP_FILE` | `./file_map.json` | Persisted file-code → filename mapping |
 | `ADMIN_TOKEN` | _(empty — no auth)_ | Token required for admin commands |
+| `MAX_UPLOAD_BYTES` | `5368709120` | Maximum upload size in bytes (default 5GB) |
+| `RESUMABLE_FOLDER` | `./UPLOADS/.resumable` | Temporary storage for resumable uploads |
+| `RESERVATION_TTL_SECONDS` | `86400` | Abandoned reservation cleanup window (seconds) |
 
 ## Admin commands
 
@@ -64,7 +81,7 @@ Hit these endpoints as `GET /uploads/<command>?token=<ADMIN_TOKEN>`:
 
 | Command | Effect |
 |---|---|
-| `RESETCACHE` | Deletes all files in `UPLOAD_FOLDER` and clears the map |
+| `RESETCACHE` | Deletes all files in `UPLOAD_FOLDER`, clears the map, and removes resumable uploads |
 | `SAVELOCAL` | Copies all uploaded files to `PERMA_FOLDER` |
 
 If `ADMIN_TOKEN` is not set, these commands are open to anyone. Set it in production.
@@ -74,6 +91,30 @@ If `ADMIN_TOKEN` is not set, these commands are open to anyone. Set it in produc
 `txt` `pdf` `png` `jpg` `jpeg` `gif` `h` `cpp` `zip` `tar` `xz` `7z` `iso`
 `doc` `docx` `xls` `xlsx` `ppt` `pptx` `csv` `json` `xml` `md`
 `mkv` `mp4` `avi` `mov` `mp3` `wav` `flac` `ogg`
+
+## Resumable uploads (chunked)
+
+The UI uses chunked uploads with SHA256 for every chunk and stores files by SHA256,
+then returns an 8-character code for download. Uploads are capped at 5GB by default.
+Chunk size and concurrency are chosen by RTT (32MB parallel on good links, 8–16MB sequential on slow links).
+The download code is generated during init using the file SHA256 as a seed.
+Abandoned reservations are cleaned up after the TTL.
+
+### API endpoints
+
+- `GET /api/ping` — RTT probe
+- `POST /api/upload/init` — JSON: `{ filename, size, rtt_ms, file_sha256 }`
+- `GET /api/upload/status/<upload_id>` — returns received chunks
+- `POST /api/upload/chunk/<upload_id>/<index>` — body: raw bytes + `X-Chunk-SHA256`
+- `POST /api/upload/finalize/<upload_id>` — assembles and returns `{ code }`
+
+### CLI demo
+
+Use the tiny runner to exercise the chunked API from the terminal:
+
+```sh
+python tools/chunk_upload_demo.py --file /path/to/big.bin --base-url http://localhost:8000
+```
 
 ---
 

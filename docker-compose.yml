@@ -1,8 +1,8 @@
 services:
   skydaddy:
     build: .
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     volumes:
       - uploads:/app/UPLOADS
       - perma:/app/PERMA
@@ -13,9 +13,25 @@ services:
       UPLOAD_FOLDER: /app/UPLOADS
       PERMA_FOLDER: /app/PERMA
       MAP_FILE: /app/UPLOADS/file_map.json
+      MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-5368709120}
+    restart: unless-stopped
+
+  nginx:
+    build: ./docker/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - skydaddy
+    volumes:
+      - nginx_certs:/etc/nginx/certs
+    environment:
+      CERT_CN: ${CERT_CN:-skydaddy.local}
+      CERT_DAYS: ${CERT_DAYS:-365}
     restart: unless-stopped
 
 volumes:
   uploads:
   perma:
   sessions:
+  nginx_certs:
