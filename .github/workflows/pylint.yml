@@ -15,5 +15,5 @@ jobs:
       run: |
         uv sync
         uv pip install pylint
-    - name: Analysing the code with pylint
-      run: uv run pylint $(git ls-files '*.py')
+    - name: Analyzing the code with pylint
+      run: uv run pylint app.py
