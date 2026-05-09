@@ -11,16 +11,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from flask import Flask, flash, jsonify, redirect, render_template, request, send_from_directory
-from flask_session import Session
 from werkzeug.utils import secure_filename
+from flask_session import Session
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 try:
-    import fcntl  # type: ignore
+    import fcntl as FCNTL  # type: ignore
 except Exception:  # pragma: no cover - Windows fallback
-    fcntl = None
+    FCNTL = None
 
 app = Flask(__name__)
 
@@ -181,8 +181,8 @@ def _locked_update_meta(upload_id: str, updater) -> dict:
     if not meta_path.exists():
         raise FileNotFoundError("Upload metadata not found")
     with meta_path.open("r+", encoding="utf-8") as f:
-        if fcntl is not None:
-            fcntl.flock(f, fcntl.LOCK_EX)
+        if FCNTL is not None:
+            FCNTL.flock(f, FCNTL.LOCK_EX)
         data = f.read()
         meta = json.loads(data) if data else {}
         updater(meta)
@@ -191,8 +191,8 @@ def _locked_update_meta(upload_id: str, updater) -> dict:
         f.write(json.dumps(meta))
         f.flush()
         os.fsync(f.fileno())
-        if fcntl is not None:
-            fcntl.flock(f, fcntl.LOCK_UN)
+        if FCNTL is not None:
+            FCNTL.flock(f, FCNTL.LOCK_UN)
     return meta
 
 
@@ -263,9 +263,11 @@ def _handle_upload():
     save_map(mapping)
     logger.info("Stored: %s as %s", original_name, short_code)
 
-    if xhr:
-        return jsonify({"code": short_code})
-    return render_template("postload.html", FCODE=short_code)
+    return (
+        jsonify({"code": short_code})
+        if xhr
+        else render_template("postload.html", FCODE=short_code)
+    )
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -367,7 +369,7 @@ def api_upload_status(upload_id: str):
 
 
 @app.route("/api/upload/chunk/<upload_id>/<int:index>", methods=["POST"])
-def api_upload_chunk(upload_id: str, index: int):
+def api_upload_chunk(upload_id: str, index: int):  # pylint: disable=too-many-locals
     meta = _load_upload_meta(upload_id)
     if not meta:
         return jsonify({"error": "No such upload"}), 404
@@ -391,52 +393,44 @@ def api_upload_chunk(upload_id: str, index: int):
     upload_dir = _upload_dir(upload_id)
     upload_dir.mkdir(parents=True, exist_ok=True)
     chunk_path = upload_dir / f"chunk_{index:08d}.part"
-    if chunk_path.exists():
-        def _update(meta_obj: dict) -> None:
+    skipped = chunk_path.exists()
+    if skipped:
+        def _mark_existing(meta_obj: dict) -> None:
             meta_obj.setdefault("chunks", {}).setdefault(
                 str(index),
                 {"sha256": None, "size": expected_size},
             )
+        _locked_update_meta(upload_id, _mark_existing)
+    else:
+        fd, tmp = tempfile.mkstemp(dir=upload_dir, suffix=".part")
+        tmp_path = Path(tmp)
+        try:
+            with os.fdopen(fd, "wb") as _:
+                pass
+            digest, size = _write_stream_with_sha256(request.stream, tmp_path, expected_size)
+            if size != expected_size:
+                raise ValueError("Chunk size mismatch")
+            if digest != expected_hash:
+                raise ValueError("Chunk hash mismatch")
+            tmp_path.rename(chunk_path)
+        except Exception as e:
+            tmp_path.unlink(missing_ok=True)
+            return jsonify({"error": str(e)}), 400
 
+        def _update(meta_obj: dict) -> None:
+            meta_obj.setdefault("chunks", {})[str(index)] = {"sha256": digest, "size": size}
         _locked_update_meta(upload_id, _update)
-        return jsonify({"ok": True, "skipped": True})
 
-    fd, tmp = tempfile.mkstemp(dir=upload_dir, suffix=".part")
-    tmp_path = Path(tmp)
-    try:
-        with os.fdopen(fd, "wb") as _:
-            pass
-        digest, size = _write_stream_with_sha256(request.stream, tmp_path, expected_size)
-        if size != expected_size:
-            raise ValueError("Chunk size mismatch")
-        if digest != expected_hash:
-            raise ValueError("Chunk hash mismatch")
-        tmp_path.rename(chunk_path)
-    except Exception as e:
-        tmp_path.unlink(missing_ok=True)
-        return jsonify({"error": str(e)}), 400
-
-    def _update(meta_obj: dict) -> None:
-        meta_obj.setdefault("chunks", {})[str(index)] = {"sha256": digest, "size": size}
-
-    _locked_update_meta(upload_id, _update)
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "skipped": True} if skipped else {"ok": True})
 
 
-@app.route("/api/upload/finalize/<upload_id>", methods=["POST"])
-def api_upload_finalize(upload_id: str):
-    meta = _load_upload_meta(upload_id)
-    if not meta:
-        return jsonify({"error": "No such upload"}), 404
-
-    total_chunks = int(meta.get("total_chunks", 0))
-    chunk_size = int(meta.get("chunk_size", MAX_CHUNK_BYTES))
-    total_size = int(meta.get("size", 0))
-    received = meta.get("chunks", {})
-    missing = [i for i in range(total_chunks) if str(i) not in received]
-    if missing:
-        return jsonify({"error": "Missing chunks", "missing": missing}), 409
-
+def _assemble_upload(  # pylint: disable=too-many-locals
+    upload_id: str,
+    total_chunks: int,
+    total_size: int,
+    ext: str,
+    expected_sha256: str | None,
+) -> tuple[str, Path]:
     fd, tmp = tempfile.mkstemp(dir=UPLOAD_FOLDER)
     tmp_path = Path(tmp)
     sha256 = hashlib.sha256()
@@ -453,15 +447,38 @@ def api_upload_finalize(upload_id: str):
         if written != total_size:
             raise ValueError("Final size mismatch")
         file_hash = sha256.hexdigest()
-        if meta.get("file_sha256") and file_hash != meta.get("file_sha256"):
+        if expected_sha256 and file_hash != expected_sha256:
             raise ValueError("Final hash mismatch")
-        final_path = UPLOAD_FOLDER / f"{file_hash}{meta.get('ext', '')}"
+        final_path = UPLOAD_FOLDER / f"{file_hash}{ext}"
         if final_path.exists():
             tmp_path.unlink(missing_ok=True)
         else:
             tmp_path.rename(final_path)
-    except Exception as e:
+        return file_hash, final_path
+    except Exception:
         tmp_path.unlink(missing_ok=True)
+        raise
+
+
+@app.route("/api/upload/finalize/<upload_id>", methods=["POST"])
+def api_upload_finalize(upload_id: str):
+    meta = _load_upload_meta(upload_id)
+    if not meta:
+        return jsonify({"error": "No such upload"}), 404
+
+    total_chunks = int(meta.get("total_chunks", 0))
+    total_size = int(meta.get("size", 0))
+    received = meta.get("chunks", {})
+    missing = [i for i in range(total_chunks) if str(i) not in received]
+    if missing:
+        return jsonify({"error": "Missing chunks", "missing": missing}), 409
+
+    try:
+        file_hash, final_path = _assemble_upload(
+            upload_id, total_chunks, total_size,
+            meta.get("ext", ""), meta.get("file_sha256"),
+        )
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
     mapping = load_map()
@@ -541,4 +558,5 @@ def download_file(name):
 
 if __name__ == "__main__":
     from waitress import serve
+
     serve(app, host="0.0.0.0", port=8080)

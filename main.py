@@ -5,6 +5,7 @@ import os
 CERT_FILE = "server.crt"
 KEY_FILE = "server.key"
 
+
 def dev():
     """
     Run Flask app in development mode over HTTPS using uvicorn.
@@ -33,4 +34,3 @@ def dev():
     ).returncode
 
     sys.exit(returncode)
-
