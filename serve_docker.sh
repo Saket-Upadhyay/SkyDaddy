@@ -3,6 +3,6 @@
 if [ "$*" != "" ]; then
   docker compose up -d "$*"
 else
-  docker compose up -d
+  docker compose up -d --build
 fi
 

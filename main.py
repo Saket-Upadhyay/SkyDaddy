@@ -34,3 +34,18 @@ def dev():
     ).returncode
 
     sys.exit(returncode)
+
+def prod():
+    """
+    Run Flask app in production mode using Waitress.
+    SSL is handled by nginx reverse proxy.
+    """
+    from app import app
+    
+    # Listen on all interfaces so nginx can reach the app container
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", "8080"))
+    
+    print(f"Starting production server on {host}:{port}")
+    from waitress import serve
+    serve(app, host=host, port=port, threads=4)
